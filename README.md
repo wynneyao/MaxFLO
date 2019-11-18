@@ -18,6 +18,22 @@ What we plan to achieve is to parallelize the 3 algorithms and get a significant
 If we finish our initial plan with enough time to spare, then a further goal that we hope to achieve would be to implement the parallel algorithms in a different programming model (i.e. MPI), use different optimized data structures in our algorithms (i.e. dynamic trees for Dinic’s), explore fine-grained locking, and/or try lock free implementations and compare their speedups as well. 
 We will mainly be showing the performance of our implementations on a realistic workload and speedup graphs, comparing our sequential and parallel implementations, as our results during our demo. 
 
-## Schedule
+# Checkpoint
+
+## Work Completed So Far
+We have implemented the 2 sequential algorithms and have a detailed understanding of how to proceed with parallelizing push-relabel. Additionally, we have a sequential implementation of the Genetic Algorithm for solving the max flow problem, that we have ready to use for one of our reach goals. We have also tested and collected timings on our two sequential algorithms on large Delaunay graph test cases (up to 4096 vertices and 12264 edges). 
+
+## Prelimenary Results
+We tested our sequential implementations on a few medium sized, delaunay graphs with the number of edges ranging from 3056 to 12264. We used delaunay graphs since these were the graphs used in the Blelloch paper and ultimately we want to compare our results to this paper’s. It appears as though Dinics performs pretty well on medium sized graphs, which makes sense since Dinic’s is an optimized sequential maxflow algorithm. Push-relabel on the other hand seems to struggle with larger sized test cases, with a time of almost 5 minutes for the graph with 12k edges. We predict the reason for this is because push-relabel is inherently parallelizable so we will see benefits of the implementation once we add parallelization to it. 
+
+![PreResults](PreResults.png)
+
+## Updated Goals
+We plan to create sequential and parallel versions of 2 commonly used maxflow algorithms - Push-Relabel and Dinic’s - and attempt to get significant speedup for the parallel versions. We plan to implement initial parallel versions of Push-Relabel and Dinic’s using OpenMP and at least one other parallel implementation for each (i.e. CUDA, MPI or using the C++ Thread Building Block Library). We plan to test our implementations on a large benchmark of DIMAC-formatted graphs, used in Blelloch’s paper, to evaluate our sequential and parallel implementations on real-sized graphs. If we finish our initial plan with enough time to spare, then a reach goal that we hope to achieve would be to either add a sequential and parallel version of a Genetic Algorithm for maxflow or use different optimized data structures in our algorithms (i.e. dynamic trees for Dinic’s), explore fine-grained locking, and/or try lock free implementations and compare their speedups as well. 
+
+## Updated Schedule
+![UpdatedSchedule](UpdatedSchedule.png)
+
+## Old Schedule
 ![Schedule](Schedule.png)
 
