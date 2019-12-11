@@ -1,5 +1,5 @@
 ## Summary
-We will be implementing sequential and optimized versions of the Dinic, Genetic and Push-Relabel algorithms for maxflow. We plan to parallelize the 3 algorithms with a shared-memory programming model. We will compare the performance and speedup of the parallelized versions relative to their sequential counterparts by running the algorithms on realistic graph workloads.
+We will be implementing sequential and optimized versions of the Dinic, Genetic and Push-Relabel algorithms for maxflow. We plan to parallelize the 3 algorithms with a shared-memory programming model. We will compare the performance and speedup of the parallelized versions relative to their sequential counterparts by running the algorithms on realistic graph workloads. You can find our final paper here: https://docs.google.com/document/d/1_dfUpSdmUni91AaYEJRZ0LUOZwGeUtZY3ZUYwjEe1kA/edit?usp=sharing.
 
 ## Background
 Applications of max flow include the project selection problem, image segmentation, airline scheduling, circulation-demand problem, and more. Because of the variety of problems that can be solved by finding a max flow through a network, we found this problem interesting. Furthermore, the benefits of optimizing max flow would lead to faster algorithms for other real world problems.
