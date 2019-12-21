@@ -19,7 +19,7 @@ What we plan to achieve is to parallelize the 2 algorithms and get a significant
 If we finish our initial plan with enough time to spare, then a further goal that we hope to achieve would be to implement the parallel algorithms in a different programming model (i.e. MPI), use different optimized data structures in our algorithms (i.e. dynamic trees for Dinic’s), explore fine-grained locking, and/or try lock free implementations and compare their speedups as well. 
 
 ## Schedule 
-![Schedule](Schedule.png)
+![NewSchedule](NewSchedule.png)
 
 # Algorithm Descriptions 
 
