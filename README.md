@@ -44,6 +44,65 @@ We tested our sequential implementations on a few medium sized, delaunay graphs 
 
 ![PreResults](PreResults.png)
 
+## Results 
+### Performance Metrics
+We evaluated our parallel algorithms by comparing their wall-clock times (in seconds) and speedup to their sequential counterparts. Specifically, we ran the command “numactl --physcpubind=0” with our parallel versions to see their sequential times and used that time in our speedup calculation. 
+
+### Performance Benchmark Used
+Our benchmark consists of primarily delaunay graphs of various sizes, to see interesting trends in scaling our algorithms, and an additional rgg graph, to model our algorithms on different types of graphs. The choice of these types of graphs was inspired by the benchmark of graphs used by Baumstark Blelloch and Shun [2] in their evaluation of their push-relabel parallel algorithm. Both delaunay and rgg graphs also have interesting real-world applications as delaunay graphs are used to construct mesh models of objects and rgg graphs are used in modelling wireless connection networks. The table below shows the complete list of graphs that were used in the benchmark and their properties:
+
+![Tests](Tests.png)
+
+The delaunay graphs that we retrieved were from the 10th DIMACs Implementation Challenge website (https://www.cc.gatech.edu/dimacs10/archive/delaunay.shtml) and the rgg graph was retrieved from the Karlsruhe High Quality Partitioning website (http://algo2.iti.kit.edu/documents/kahip/index.html). These graphs had to be converted to a specific DIMACs instance of the maxflow problem before being read by our parser. We randomly generated capacities for each of the edges in these graphs with maximum capacity being 1000. 
+
+### Experimental Setup
+For Dinic's we performed the following experiments:
+
+1. Parallel vs Sequential Times and Speedup
+2. BFS vs parallelBFS
+3. Adjacency List vs Adjacency Matrix
+
+For Experiment 1, we ran each test in the benchmark 3 times on the parallel Dinic’s algorithm (with adjacency lists) and took the average of the 3 trials. For graphs with the number of nodes less than 2^16, we ran Dinic's with the regular BFS. For graphs with the number of nodes >= 2^16, we ran Dinic's with the parallel BFS, since at this point, the data showed that the parallel BFS resulted in a better runtime than the regular BFS. To determine the speedup for this experiment we compared the runtime of the parallel Dinic’s algorithm on a single thread. We also included the times using the original sequential algorithm.
+
+For Experiment 2, we ran each test in the benchmark 3 times on the parallel Dinic’s algorithm (with adjacency lists) with the regular BFS and the parallel BFS, recording the average time spent in the BFS function over the 3 trials.
+
+For Experiment 3, we ran each test in the benchmark 3 times on the parallel Dinic’s algorithm using adjacency lists, taking the average over the 3 trials. For the parallel Dinic’s algorithm using adjacency matrices we ran the tests from the benchmark that could fit in memory. Like in experiment 1, we calculated the speedup of each algorithm by comparing its parallel runtime to the single thread runtime.
+
+For Push-relabel, we only performed the Parallel vs Sequential Times and Speedup experiment. Like for Dinic’s, we ran all the tests from the benchmark that fit into memory 3 times and took the average of the 3 trials. To determine the speedup we compared the runtime of the parallel algorithm to the runtime of the algorithm run on a single thread. We also included the times using the original sequential push-relabel algorithm.
+
+### Results for Experiment 1: Parallel vs Sequential Times and Speedup
+The graph below shows the runtimes of the Parallel Dinic's algorithms, Parallel Dinic's algorithm ran on a single core (i.e. Sequential) and the Original Sequential algorithm. Although the parallel version’s runtime does appear to be smaller than the sequential’s, especially on graphs with more than 2^17 nodes, the speedup table indicates that the speedup isn’t significant given the number of cores. 
+
+![RuntimeDinics](RuntimeDinics.png)
+![SpeedupDinics](SpeedupDinics.png)
+
+### Results Experiment 2: BFS vs parallel BFS
+The main function of Dinic's that we tried parallelizing is the BFS function. Below is a graph of the runtime of the parallel Dinic's algorithm (where the graph is represented with adjacency lists) when ran with the regular BFS and the parallel BFS with bags. It appears as though BFS and parallelBFS have around the same performance for a smaller number of nodes. In fact, the regular BFS performs better when the number of nodes is smaller perhaps due to the added complexity of recursion in the parallelBFS. However, when the number of nodes hits 2^18 we can see that the parallelBFS begins to outperform the regular BFS. Note that we used a cutoff of 128 to determine when to split the vector of nodes into halves.
+
+![BFSVsParallelBFS](BFSVsParallelBFS.png)
+
+### Results Experiment 3: Adjacency List vs Adjacency Matrix
+The table below demonstrates that although adjacency matrices achieved reasonable speedup on graphs where the number of nodes was 2^16, the machine could only fit graphs with up to that many nodes in memory. From the other table, it appears as though adding adjacency lists improved the runtime of Dinic's on both single and multiple threads which as a result reduced the speedup. Adjacency lists also allowed parallel Dinic's to be run on all the test graphs in the benchmark.
+
+![RuntimeListVsAdj](RuntimeListVsAdj.png)
+![SpeedupListVsAdj](SpeedupListVsAdj.png)
+
+### Analysis of Dinic's Results
+From experiment 1 we see that the speedup of the final parallel Dinic's is not very significant. Most likely this is due to the fact that a significant portion of the algorithm, the sendFlow function, is inherently parallel and recursive. The sendFlow bottleneck became more apparent after running performance reports on larger test cases, starting from graphs with 2^16 nodes. For these test cases, no matter which BFS algorithm was used, sendFlow consistently comprised between 18 to 25% of the execution time. 
+
+### Speedup and Times for Push-relabel
+![SpeedupPushRelabel](SpeedupPushRelabel.png)
+![PushRelabelResults](PushRelabelResults.png)
+![PushRelabelOriginalSequential](PushRelabelOriginalSequential.png)
+
+### Analysis of Overall Speedup and Times for Push-relabel
+Here were some of the percentages of time spent in the two major parts of the push-relabel algorithm. 
+
+In the perf report of the delaunay_n11 test case, the majority of the time was spent in neither globalRelabel nor pushRelabel, but rather in a library called libgomp, which is something that OpenMP uses to manage threads. Perhaps to get a better speedup on smaller test cases, we might need to switch to using a different parallel framework to avoid this overhead. 
+
+We speculated that one thing that is limiting speedup is the fact that the algorithm is still inherently iterative - each iteration concatenates together the new working set before the next iteration, thus the iterations have dependencies between each other. Another speculated limiter is false sharing because of the large 2D matrices we use. Instead, they could be replaced with adjacency lists. Furthermore, the working set could be made into a concurrent unordered set as well. We also saw that 49% of the execution time was spent in globalRelabel to check that residual[v][w] > 0, and if so, pushing v onto reverseResiduals[w]. This had to be done in a critical section, as multiple threads could be pushing onto w’s vector. Lastly, we know that there is also synchronization overhead from mfence - in the perf report for delaunay_n14, we see that mfence is taking up 32% of the execution time. As we did not explicitly put in an mfence, this mfence is probably due to the synchronization used in the OpenMP commands. It is possible that this indicates that the section before the mfence took a long time, not the mfence itself. However, after looking more closely, the sections before the mfence involve simple loads and additions, so this is probably not the case. 
+
+
 
 
 
