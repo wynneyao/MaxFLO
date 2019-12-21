@@ -87,8 +87,7 @@ For Push-relabel, we only performed the Parallel vs Sequential Times and Speedup
 ### Results for Experiment 1: Parallel vs Sequential Times and Speedup
 The graph below shows the runtimes of the Parallel Dinic's algorithms, Parallel Dinic's algorithm ran on a single core (i.e. Sequential) and the Original Sequential algorithm. Although the parallel version’s runtime does appear to be smaller than the sequential’s, especially on graphs with more than 2^17 nodes, the speedup table indicates that the speedup isn’t significant given the number of cores. 
 
-![RuntimeDinics](RuntimeDinics.png)
-![SpeedupDinics](SpeedupDinics.png)
+![Experiment1](Experiment1.png)
 
 ### Results Experiment 2: BFS vs parallel BFS
 The main function of Dinic's that we tried parallelizing is the BFS function. Below is a graph of the runtime of the parallel Dinic's algorithm (where the graph is represented with adjacency lists) when ran with the regular BFS and the parallel BFS with bags. It appears as though BFS and parallelBFS have around the same performance for a smaller number of nodes. In fact, the regular BFS performs better when the number of nodes is smaller perhaps due to the added complexity of recursion in the parallelBFS. However, when the number of nodes hits 2^18 we can see that the parallelBFS begins to outperform the regular BFS. Note that we used a cutoff of 128 to determine when to split the vector of nodes into halves.
@@ -105,12 +104,12 @@ The table below demonstrates that although adjacency matrices achieved reasonabl
 From experiment 1 we see that the speedup of the final parallel Dinic's is not very significant. Most likely this is due to the fact that a significant portion of the algorithm, the sendFlow function, is inherently parallel and recursive. The sendFlow bottleneck became more apparent after running performance reports on larger test cases, starting from graphs with 2^16 nodes. For these test cases, no matter which BFS algorithm was used, sendFlow consistently comprised between 18 to 25% of the execution time. 
 
 ### Speedup and Times for Push-relabel
-![SpeedupPushRelabel](SpeedupPushRelabel.png)
-![PushRelabelResults](PushRelabelResults.png)
-![PushRelabelOriginalSequential](PushRelabelOriginalSequential.png)
+![Push-RelabelResults](Push-RelabelResults.png)
 
 ### Analysis of Overall Speedup and Times for Push-relabel
 Here were some of the percentages of time spent in the two major parts of the push-relabel algorithm. 
+
+![ExecutionTimes](ExecutionTimes.png)
 
 In the perf report of the delaunay_n11 test case, the majority of the time was spent in neither globalRelabel nor pushRelabel, but rather in a library called libgomp, which is something that OpenMP uses to manage threads. Perhaps to get a better speedup on smaller test cases, we might need to switch to using a different parallel framework to avoid this overhead. 
 
