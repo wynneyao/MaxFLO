@@ -104,7 +104,7 @@ The table below demonstrates that although adjacency matrices achieved reasonabl
 From experiment 1 we see that the speedup of the final parallel Dinic's is not very significant. Most likely this is due to the fact that a significant portion of the algorithm, the sendFlow function, is inherently parallel and recursive. The sendFlow bottleneck became more apparent after running performance reports on larger test cases, starting from graphs with 2^16 nodes. For these test cases, no matter which BFS algorithm was used, sendFlow consistently comprised between 18 to 25% of the execution time. 
 
 ### Speedup and Times for Push-relabel
-![Push-RelabelResults](Push-RelabelResults.png)
+![PushRelabelFinal](PushRelabelFinal.png)
 
 ### Analysis of Overall Speedup and Times for Push-relabel
 Here were some of the percentages of time spent in the two major parts of the push-relabel algorithm. 
