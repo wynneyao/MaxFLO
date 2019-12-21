@@ -1,3 +1,5 @@
+By Katia Villevald and Wynne Yao 
+
 ## Summary
 Our project focused on parallelizing and evaluating the performance of two commonly used algorithms for solving the maximum flow problem on graphs, Dinic’s and Push-relabel. We created sequential and shared-memory (OpenMP) parallel versions of the algorithms. To enhance the performance of the parallel algorithms, we also integrated lock-free updates to certain variables and concurrent data structures (using the thread building block library in C++). Our evaluation of the algorithms involved running the algorithms on realistically-sized graphs and comparing the speedup of the parallel implementation to the sequential.  
 You can find our final paper [here](https://docs.google.com/document/d/1_dfUpSdmUni91AaYEJRZ0LUOZwGeUtZY3ZUYwjEe1kA/edit?usp=sharing) and the code [here](https://github.com/KatiaVi/418MaxFloProject). 
