@@ -1,6 +1,6 @@
 theme: jekyll-theme-cayman
 title: MaxFLO
-description: > 
+description: |
   A project that parallelizes 2 max flow algorithms, Dinic's and Push-Relabel. 
   Katia Villevald and Wynne Yao.  
 github:
