@@ -115,6 +115,15 @@ In the perf report of the delaunay_n11 test case, the majority of the time was s
 
 We speculated that one thing that is limiting speedup is the fact that the algorithm is still inherently iterative - each iteration concatenates together the new working set before the next iteration, thus the iterations have dependencies between each other. Another speculated limiter is false sharing because of the large 2D matrices we use. Instead, they could be replaced with adjacency lists. Furthermore, the working set could be made into a concurrent unordered set as well. We also saw that 49% of the execution time was spent in globalRelabel to check that residual[v][w] > 0, and if so, pushing v onto reverseResiduals[w]. This had to be done in a critical section, as multiple threads could be pushing onto w’s vector. Lastly, we know that there is also synchronization overhead from mfence - in the perf report for delaunay_n14, we see that mfence is taking up 32% of the execution time. As we did not explicitly put in an mfence, this mfence is probably due to the synchronization used in the OpenMP commands. It is possible that this indicates that the section before the mfence took a long time, not the mfence itself. However, after looking more closely, the sections before the mfence involve simple loads and additions, so this is probably not the case. 
 
+## References
+* Niklas Baumstark, Guy Blelloch, and Julian Shun. 2015. Efficient implementation of a synchronous parallel push-relabel algorithm. In Proc. ESA.
+* Udacity. “Finishing the Parallel BFS with Bags” YouTube, 23 Feb. 2013, https://www.youtube.com/watch?v=M4HSekx-8XA
+* Wikipedia contributors. "Maximum flow problem." Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 29 Nov. 2019. Web. 10 Dec. 2019.
+* Nishant Singh. “Dinic’s Algorithm for Maximum Flow ” Geeks for Geeks. https://www.geeksforgeeks.org/Dinic's-algorithm-maximum-flow/
+* 2013 Lecture 14: 15-451/651: Design & Analysis of Algorithms, lecture notes,School of Computer Science 15-451, Carnegie Mellon University, 10 Oct 2013. https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf
+* Wikihow, WikihowLearn, “Course:Concurrent Programming in CPP” Wikihow, https://en.wikitolearn.org/Course:Concurrent_Programming_in_CPP/TBB_Containers/TBB_Containers
+* 2016 Lecture 12: 15-451/651: Network Flows I, lecture notes,School of Computer Science 15-451, Carnegie Mellon University, 22 Feb 2016. http://www.cs.cmu.edu/afs/cs/academic/class/15451-s16/www/lectures/lec12-flow1.pdf
+* M. Holtgrewe, P. Sanders, and C. Schulz. Engineering a Scalable High Quality Graph Partitioner. 24th IEEE International Parallel and Distributed Processing Symposium, 2010.
 
 
 
